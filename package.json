@@ -13,7 +13,7 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsc --project ./tsconfig.json --emitDeclarationOnly && esbuild ./src/index.ts --bundle --platform=node --target=esnext --outfile=index.js",
+    "build": "npm run check && esbuild ./src/index.ts --bundle --platform=node --target=esnext --outfile=index.js",
     "check": "tsc --noEmit",
     "ci": "npm run build && npm run lint && npm run check && npm run test",
     "clean": "rm -rf ./dist/*",
