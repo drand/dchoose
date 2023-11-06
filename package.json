@@ -2,7 +2,9 @@
   "name": "dchoose",
   "description": "a CLI tool for choosing items from lists using drand",
   "version": "1.0.0",
-  "bin": "index.js",
+  "bin": {
+    "dchoose": "index.js"
+  },
   "files": [
     "index.js",
     "LICENSE-APACHE",
