@@ -1,0 +1,29 @@
+name: build
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+    tags:
+      - .*
+
+jobs:
+  build_test_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm test
+      - name: publish to npmjs
+        uses: JS-DevTools/npm-publish@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          # don't try and deploy if versions haven't changed
+          check-version: true
