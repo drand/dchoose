@@ -16,17 +16,14 @@
     "build": "npm run check && esbuild ./src/index.ts --bundle --platform=node --target=esnext --outfile=index.js",
     "check": "tsc --noEmit",
     "ci": "npm run build && npm run lint && npm run check && npm run test",
-    "clean": "rm -rf ./dist/*",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "start": "ts-node ./src/index.ts",
     "test": "jest ./test/*.test.ts"
   },
   "author": "CluEleSsUK",
   "license": "(Apache-2.0 OR MIT)",
   "devDependencies": {
     "@jest/globals": "^29.5.0",
-    "@types/chai": "^4.3.1",
     "@types/node": "^18.0.4",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
