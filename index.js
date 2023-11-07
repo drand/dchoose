@@ -7207,6 +7207,16 @@ async function main(params) {
     printWinners(values);
     process.exit(0);
   }
+  let randomness;
+  if (params.randomness) {
+    randomness = params.randomness;
+  } else {
+    randomness = await fetchDrandRandomness(drandURL);
+  }
+  const winners = select(count, values, Buffer.from(randomness, "hex"));
+  printWinners(winners);
+}
+async function fetchDrandRandomness(drandURL) {
   const drandClient = new import_drand_client.HttpChainClient(new import_drand_client.HttpCachingChain(drandURL));
   const nextRound = (0, import_drand_client.roundAt)(Date.now(), await drandClient.chain().info()) + 1;
   const abort = new AbortController();
@@ -7214,10 +7224,9 @@ async function main(params) {
     if (beacon.round !== nextRound) {
       continue;
     }
-    const winners = select(count, values, Buffer.from(beacon.randomness, "hex"));
-    printWinners(winners);
-    abort.abort();
+    return beacon.randomness;
   }
+  throw Error("this should never have happened");
 }
 function printWinners(winners) {
   winners.forEach((winner) => console.log(winner));
@@ -7245,6 +7254,7 @@ function parseParams(opts) {
   return {
     count: Number.parseInt(opts.count),
     drandURL: opts.drandUrl,
+    randomness: opts.randomness,
     values
   };
 }
@@ -7266,7 +7276,7 @@ function isValidURL(inputURL) {
 }
 
 // src/index.ts
-program.option("-c,--count <number>", "the number of items you wish to draw", "1").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971").option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "");
+program.option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971").option("-c,--count <number>", "the number of items you wish to draw", "1").option("-r,--randomness <hex>", "custom randomness, if you wish to repeat historical draws", "");
 program.parse(process.argv);
 main(parseParamsAndExit(program.opts()));
 /*! Bundled license information:
