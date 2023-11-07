@@ -7199,22 +7199,23 @@ function hashInput(input) {
 
 // src/main.ts
 async function main(params) {
+  printWinners(params, await draw(params));
+}
+async function draw(params) {
   const { values, count, drandURL } = params;
   if (count === 0) {
-    process.exit(0);
+    return { round: 0, randomness: "", winners: [] };
   }
   if (values.length <= count) {
-    printWinners(values);
-    process.exit(0);
+    return { round: 0, randomness: "", winners: values };
   }
-  let randomness;
   if (params.randomness) {
-    randomness = params.randomness;
-  } else {
-    randomness = await fetchDrandRandomness(drandURL);
+    const winners2 = select(count, values, Buffer.from(params.randomness, "hex"));
+    return { round: 0, randomness: params.randomness, winners: winners2 };
   }
+  const [round, randomness] = await fetchDrandRandomness(drandURL);
   const winners = select(count, values, Buffer.from(randomness, "hex"));
-  printWinners(winners);
+  return { round, randomness, winners };
 }
 async function fetchDrandRandomness(drandURL) {
   const drandClient = new import_drand_client.HttpChainClient(new import_drand_client.HttpCachingChain(drandURL));
@@ -7224,12 +7225,16 @@ async function fetchDrandRandomness(drandURL) {
     if (beacon.round !== nextRound) {
       continue;
     }
-    return beacon.randomness;
+    return [nextRound, beacon.randomness];
   }
   throw Error("this should never have happened");
 }
-function printWinners(winners) {
-  winners.forEach((winner) => console.log(winner));
+function printWinners(params, output2) {
+  if (!params.verbose) {
+    output2.winners.forEach((winner) => console.log(winner));
+  } else {
+    console.log(JSON.stringify(output2));
+  }
 }
 
 // src/params.ts
@@ -7255,6 +7260,7 @@ function parseParams(opts) {
     count: Number.parseInt(opts.count),
     drandURL: opts.drandUrl,
     randomness: opts.randomness,
+    verbose: opts.verbose,
     values
   };
 }
@@ -7276,7 +7282,7 @@ function isValidURL(inputURL) {
 }
 
 // src/index.ts
-program.option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971").option("-c,--count <number>", "the number of items you wish to draw", "1").option("-r,--randomness <hex>", "custom randomness, if you wish to repeat historical draws", "");
+program.option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971").option("-c,--count <number>", "the number of items you wish to draw", "1").option("-r,--randomness <hex>", "custom randomness, if you wish to repeat historical draws", "").option("-v,--verbose", "the tool will output more details about the draw than just the winners");
 program.parse(process.argv);
 main(parseParamsAndExit(program.opts()));
 /*! Bundled license information:

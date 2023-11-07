@@ -6,30 +6,40 @@ export type CLIParams = {
     drandURL: string
     randomness?: string
     values: Array<string>
+    verbose: boolean
 }
 
 export async function main(params: CLIParams) {
-    const {values, count, drandURL} = params
-    if (count === 0) {
-        process.exit(0)
-    }
-    if (values.length <= count) {
-        printWinners(values)
-        process.exit(0)
-    }
-
-    let randomness: string
-    if (params.randomness) {
-        randomness = params.randomness
-    } else {
-        randomness = await fetchDrandRandomness(drandURL)
-    }
-
-    const winners = select(count, values, Buffer.from(randomness, "hex"))
-    printWinners(winners)
+    printWinners(params, await draw(params))
 }
 
-async function fetchDrandRandomness(drandURL: string): Promise<string> {
+type DrawResult = {
+    round: number
+    randomness: string
+    winners: Array<string>
+}
+
+export async function draw(params: CLIParams): Promise<DrawResult> {
+    const {values, count, drandURL} = params
+    if (count === 0) {
+        return {round: 0, randomness: "", winners: []}
+    }
+
+    if (values.length <= count) {
+        return {round: 0, randomness: "", winners: values}
+    }
+
+    if (params.randomness) {
+        const winners = select(count, values, Buffer.from(params.randomness, "hex"))
+        return {round: 0, randomness: params.randomness, winners}
+    }
+
+    const [round, randomness] = await fetchDrandRandomness(drandURL)
+    const winners = select(count, values, Buffer.from(randomness, "hex"))
+    return {round, randomness, winners}
+}
+
+async function fetchDrandRandomness(drandURL: string): Promise<[number, string]> {
     const drandClient = new HttpChainClient(new HttpCachingChain(drandURL))
     const nextRound = roundAt(Date.now(), await drandClient.chain().info()) + 1
     const abort = new AbortController()
@@ -40,11 +50,15 @@ async function fetchDrandRandomness(drandURL: string): Promise<string> {
             continue
         }
 
-        return beacon.randomness
+        return [nextRound, beacon.randomness]
     }
     throw Error("this should never have happened")
 }
 
-function printWinners(winners: Array<string>) {
-    winners.forEach(winner => console.log(winner))
+function printWinners(params: CLIParams, output: DrawResult) {
+    if (!params.verbose) {
+        output.winners.forEach(winner => console.log(winner))
+    } else {
+        console.log(JSON.stringify(output))
+    }
 }

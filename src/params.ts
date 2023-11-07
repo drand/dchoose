@@ -30,6 +30,7 @@ export function parseParams(opts: OptionValues): CLIParams | string {
         count: Number.parseInt(opts.count),
         drandURL: opts.drandUrl,
         randomness: opts.randomness,
+        verbose: opts.verbose,
         values,
     }
 }

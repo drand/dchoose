@@ -10,6 +10,8 @@ Choose an item from a file or input stream using drand
 `cat /some/path/to/file | dchoose --count 2`
 or
 `dchoose --count 2 --file /some/path/to/file`
+or
+`echo -e "heads\ntails" | dchoose`
 
 ## Parameters
 * `-c, --count`
