@@ -7,10 +7,16 @@ Choose an item from a file or input stream using drand
 `npm install -g dchoose`
 
 ## Usage
+Select some random entries from a file:
+
 `cat /some/path/to/file | dchoose --count 2`
-or
+
+Or alternatively:
+
 `dchoose --count 2 --file /some/path/to/file`
-or
+
+Flip a coin:
+
 `echo -e "heads\ntails" | dchoose`
 
 ## Parameters
