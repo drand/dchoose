@@ -1,9 +1,9 @@
 import {OptionValues} from "commander"
-import fs, {PathOrFileDescriptor, writeFileSync} from "fs"
+import fs from "fs"
 import {CLIParams} from "./main"
 
-export function parseParamsAndExit(opts: OptionValues, input: PathOrFileDescriptor): CLIParams {
-    const result = parseParams(opts, input)
+export function parseParamsAndExit(opts: OptionValues): CLIParams {
+    const result = parseParams(opts)
     if (typeof result === "string") {
         console.error(result)
         process.exit(1)
@@ -11,7 +11,7 @@ export function parseParamsAndExit(opts: OptionValues, input: PathOrFileDescript
     return result
 }
 
-export function parseParams(opts: OptionValues, input: PathOrFileDescriptor): CLIParams | string {
+export function parseParams(opts: OptionValues): CLIParams | string {
     if (!isNonNegativeNumber(opts.count)) {
         return "count must be a non-negative number"
     }
@@ -20,6 +20,7 @@ export function parseParams(opts: OptionValues, input: PathOrFileDescriptor): CL
         return "drand URL was not a valid URL"
     }
 
+    const input = opts.file === "" ? process.stdin.fd : opts.file
     const values = fs.readFileSync(input)
         .toString("utf-8")
         .trim()

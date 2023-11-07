@@ -7225,21 +7225,22 @@ function printWinners(winners) {
 
 // src/params.ts
 var import_fs = __toESM(require("fs"));
-function parseParamsAndExit(opts, input) {
-  const result = parseParams(opts, input);
+function parseParamsAndExit(opts) {
+  const result = parseParams(opts);
   if (typeof result === "string") {
     console.error(result);
     process.exit(1);
   }
   return result;
 }
-function parseParams(opts, input) {
+function parseParams(opts) {
   if (!isNonNegativeNumber(opts.count)) {
     return "count must be a non-negative number";
   }
   if (!isValidURL(opts.drandUrl)) {
     return "drand URL was not a valid URL";
   }
+  const input = opts.file === "" ? process.stdin.fd : opts.file;
   const values = import_fs.default.readFileSync(input).toString("utf-8").trim().split("\n");
   return {
     count: Number.parseInt(opts.count),
@@ -7265,9 +7266,9 @@ function isValidURL(inputURL) {
 }
 
 // src/index.ts
-program.option("-c,--count <number>", "the number of items you wish to draw", "1").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971");
+program.option("-c,--count <number>", "the number of items you wish to draw", "1").option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971").option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "");
 program.parse(process.argv);
-main(parseParamsAndExit(program.opts(), process.stdin.fd));
+main(parseParamsAndExit(program.opts()));
 /*! Bundled license information:
 
 @noble/hashes/utils.js:
