@@ -37,3 +37,7 @@ The file to select items from. Each line is considered an entry. Alternatively, 
 Custom randomness with which to draw from instead of using the next drand round. 
 Must be in hex format. 
 This can be useful for verifying past draws or repeatability.
+
+* `-v, --verbose`
+
+A verbose output format for when you want to know a little more about the draw, or want to repeat it

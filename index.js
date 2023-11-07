@@ -7204,14 +7204,14 @@ async function main(params) {
 async function draw(params) {
   const { values, count, drandURL } = params;
   if (count === 0) {
-    return { round: 0, randomness: "", winners: [] };
+    return { winners: [] };
   }
   if (values.length <= count) {
-    return { round: 0, randomness: "", winners: values };
+    return { winners: values };
   }
   if (params.randomness) {
     const winners2 = select(count, values, Buffer.from(params.randomness, "hex"));
-    return { round: 0, randomness: params.randomness, winners: winners2 };
+    return { randomness: params.randomness, winners: winners2 };
   }
   const [round, randomness] = await fetchDrandRandomness(drandURL);
   const winners = select(count, values, Buffer.from(randomness, "hex"));
