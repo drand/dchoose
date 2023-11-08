@@ -1,7 +1,7 @@
 {
   "name": "dchoose",
   "description": "a CLI tool for choosing items from lists using drand",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "bin": {
     "dchoose": "index.js"
   },

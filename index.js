@@ -7203,19 +7203,20 @@ async function main(params) {
 }
 async function draw(params) {
   const { values, count, drandURL } = params;
+  const totalCount = values.length;
   if (count === 0) {
-    return { winners: [] };
+    return { totalCount, winners: [] };
   }
   if (values.length <= count) {
-    return { winners: values };
+    return { totalCount, winners: values };
   }
   if (params.randomness) {
     const winners2 = select(count, values, Buffer.from(params.randomness, "hex"));
-    return { randomness: params.randomness, winners: winners2 };
+    return { randomness: params.randomness, totalCount, winners: winners2 };
   }
   const [round, randomness] = await fetchDrandRandomness(drandURL);
   const winners = select(count, values, Buffer.from(randomness, "hex"));
-  return { round, randomness, winners };
+  return { round, randomness, totalCount, winners };
 }
 async function fetchDrandRandomness(drandURL) {
   const drandClient = new import_drand_client.HttpChainClient(new import_drand_client.HttpCachingChain(drandURL));

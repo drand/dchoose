@@ -33,6 +33,7 @@ describe("draws", () => {
             const result = await draw(params)
             expect(result.round).toBeUndefined()
             expect(result.randomness).toBeUndefined()
+            expect(result.totalCount).toEqual(3)
             expect(result.winners).toEqual([])
         })
         it("should return all the values for a count less than the number of values", async () => {
@@ -45,6 +46,7 @@ describe("draws", () => {
             const result = await draw(params)
             expect(result.round).toBeUndefined()
             expect(result.randomness).toBeUndefined()
+            expect(result.totalCount).toEqual(3)
             expect(result.winners).toEqual(params.values)
         })
         it("should return the same result each time for custom randomness", async () => {
@@ -58,6 +60,7 @@ describe("draws", () => {
             const result = await draw(params)
             expect(result.round).toBeUndefined()
             expect(result.randomness).toEqual(params.randomness)
+            expect(result.totalCount).toEqual(3)
 
             const result2 = await draw(params)
             expect(result).toEqual(result2)
@@ -72,6 +75,7 @@ describe("draws", () => {
             const result = await draw(params)
             expect(result.round).toBeGreaterThan(1)
             expect(result.winners).toHaveLength(params.count)
+            expect(result.totalCount).toEqual(3)
         })
     })
 })
