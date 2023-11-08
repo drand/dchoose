@@ -1,19 +1,69 @@
-#!/usr/bin/env node
+import {HttpCachingChain, HttpChainClient, roundAt, watch} from "drand-client"
+import {select} from "./select"
 
-import {program} from "commander"
-import {main} from "./main"
-import {parseParamsAndExit} from "./params"
+export type CLIParams = {
+    count: number,
+    drandURL: string
+    randomness?: string
+    values: Array<string>
+    verbose: boolean
+}
 
-// we parse the CLI flags, setting default count to 1 and default drand URL to quicknet
-program
-    .option("-f,--file <file>", "a file you wish to use for selection; alternatively, you can pass options via stdin", "")
-    .option("-u,--drand-url <url>", "the URL you're using for drand randomness", "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971")
-    .option("-c,--count <number>", "the number of items you wish to draw", "1")
-    .option("-r,--randomness <hex>", "custom randomness, if you wish to repeat historical draws", "")
-    .option("-v,--verbose", "the tool will output more details about the draw than just the winners")
+export async function printDraw(params: CLIParams) {
+    printWinners(params, await draw(params))
+}
 
-// including the arguments
-program.parse(process.argv)
+type DrawResult = {
+    time: number
+    round?: number
+    randomness?: string
+    totalCount: number
+    winners: Array<string>
+}
 
-// we parse the params in a synchronous function so errors get output on the current tick
-main(parseParamsAndExit(program.opts()))
+export async function draw(params: CLIParams): Promise<DrawResult> {
+    const {values, count, drandURL} = params
+    const totalCount = values.length
+    const time = Date.now()
+
+    if (count === 0) {
+        return {time, totalCount, winners: []}
+    }
+
+    if (values.length <= count) {
+        return {time, totalCount, winners: values}
+    }
+
+    if (params.randomness) {
+        const winners = select(count, values, Buffer.from(params.randomness, "hex"))
+        return {time, randomness: params.randomness, totalCount, winners}
+    }
+
+    const [round, randomness] = await fetchDrandRandomness(drandURL)
+    const winners = select(count, values, Buffer.from(randomness, "hex"))
+    return {time, round, randomness, totalCount, winners}
+}
+
+async function fetchDrandRandomness(drandURL: string): Promise<[number, string]> {
+    const drandClient = new HttpChainClient(new HttpCachingChain(drandURL))
+    const nextRound = roundAt(Date.now(), await drandClient.chain().info()) + 1
+    const abort = new AbortController()
+
+    // we have to do this song and dance because erroring and retrying doesn't work nicely on nodejs
+    for await (const beacon of watch(drandClient, abort, {retriesOnFailure: 10})) {
+        if (beacon.round !== nextRound) {
+            continue
+        }
+
+        return [nextRound, beacon.randomness]
+    }
+    throw Error("this should never have happened")
+}
+
+function printWinners(params: CLIParams, output: DrawResult) {
+    if (!params.verbose) {
+        output.winners.forEach(winner => console.log(winner))
+    } else {
+        console.log(JSON.stringify(output))
+    }
+}

@@ -1,6 +1,6 @@
 import {OptionValues} from "commander"
 import fs from "fs"
-import {CLIParams} from "./main"
+import {CLIParams} from "./index"
 
 export function parseParamsAndExit(opts: OptionValues): CLIParams {
     const result = parseParams(opts)

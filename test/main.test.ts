@@ -1,5 +1,5 @@
 import {describe, it, expect} from "@jest/globals"
-import {draw, main} from "../src/main"
+import {printDraw, draw} from "../index"
 
 describe("draws", () => {
     describe("main function", () => {
@@ -10,7 +10,7 @@ describe("draws", () => {
                 drandURL: "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
                 verbose: false,
             }
-            await main(params)
+            await printDraw(params)
         })
         it("non-verbose shouldn't blow up", async () => {
             const params = {
@@ -19,7 +19,7 @@ describe("draws", () => {
                 drandURL: "https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
                 verbose: false,
             }
-            await main(params)
+            await printDraw(params)
         })
     })
     describe("draw function", () => {

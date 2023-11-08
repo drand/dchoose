@@ -1,19 +1,23 @@
 {
   "name": "dchoose",
   "description": "a CLI tool for choosing items from lists using drand",
-  "version": "1.0.4",
+  "version": "1.0.5",
+  "main": "index.js",
   "bin": {
-    "dchoose": "index.js"
+    "dchoose": "src/cli.js"
   },
   "files": [
+    "cli.js",
     "index.js",
+    "index.d.ts",
     "LICENSE-APACHE",
     "LICENSE-MIT",
     "README.md",
     "package.json"
   ],
   "scripts": {
-    "build": "npm run check && esbuild ./src/index.ts --bundle --platform=node --target=esnext --outfile=index.js",
+    "build": "npm run check && tsc --emitDeclarationOnly && esbuild ./src/index.ts --bundle --platform=node --target=esnext --outfile=index.js",
+    "build:cli": "esbuild ./src/cli.ts --bundle --platform=node --target=esnext --outfile=cli.js",
     "check": "tsc --noEmit",
     "ci": "npm run build && npm run lint && npm run check && npm run test",
     "lint": "eslint",
