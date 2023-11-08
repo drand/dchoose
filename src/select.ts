@@ -42,11 +42,7 @@ export function select(count: number, values: Array<string>, randomness: Uint8Ar
         const chosenIndex = indexFromRandomness(currentRandomness, remainingValues.length)
 
         // remove the chosen value from the remaining values and add it to the chosen values
-        chosenValues = [...chosenValues, remainingValues[chosenIndex]]
-        remainingValues = [
-            ...remainingValues.slice(0, chosenIndex),
-            ...remainingValues.slice(chosenIndex + 1, remainingValues.length)
-        ]
+        chosenValues.push(...remainingValues.splice(chosenIndex, 1))
         remainingDraws--
     }
 
