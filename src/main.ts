@@ -14,6 +14,7 @@ export async function main(params: CLIParams) {
 }
 
 type DrawResult = {
+    time: number
     round?: number
     randomness?: string
     totalCount: number
@@ -22,23 +23,25 @@ type DrawResult = {
 
 export async function draw(params: CLIParams): Promise<DrawResult> {
     const {values, count, drandURL} = params
-    const totalCount =  values.length
+    const totalCount = values.length
+    const time = Date.now()
+
     if (count === 0) {
-        return {totalCount, winners: []}
+        return {time, totalCount, winners: []}
     }
 
     if (values.length <= count) {
-        return {totalCount, winners: values}
+        return {time, totalCount, winners: values}
     }
 
     if (params.randomness) {
         const winners = select(count, values, Buffer.from(params.randomness, "hex"))
-        return {randomness: params.randomness, totalCount, winners}
+        return {time, randomness: params.randomness, totalCount, winners}
     }
 
     const [round, randomness] = await fetchDrandRandomness(drandURL)
     const winners = select(count, values, Buffer.from(randomness, "hex"))
-    return {round, randomness, totalCount, winners}
+    return {time, round, randomness, totalCount, winners}
 }
 
 async function fetchDrandRandomness(drandURL: string): Promise<[number, string]> {

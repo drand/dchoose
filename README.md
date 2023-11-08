@@ -42,5 +42,13 @@ This can be useful for verifying past draws or repeatability.
 
 A verbose output format for when you want to know a little more about the draw, or want to repeat it.
 
-The output format looks something like:
-`{"round":1,"randomness":"f73220684f2a171ffb00ec3b21983e01738bc863e26f374b0a76081416eebda8","totalCount":2,winners":["heads"]}`
+The output format (prettified) looks something like:
+```
+{
+  "time": 1699439820012,
+  "round": 123456,
+  "randomness": "f73220684f2a171ffb00ec3b21983e01738bc863e26f374b0a76081416eebda8",
+  "totalCount": 2,
+  "winners": ["heads"]
+}
+```
